@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { User } from '../types/User';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
-import { selectUsers } from '../features/users/usersSlice';
-import { fetchUsers } from '../features/users/usersSlice';
+import { selectUsers, fetchUsers } from '../features/users/usersSlice';
 
 type Props = {
   value: User | null;
@@ -15,13 +14,16 @@ export const UserSelector: React.FC<Props> = ({
   onChange,
 }) => {
   const users = useAppSelector(selectUsers);
+
+  const loaded = useAppSelector(state => state.users.loaded);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (users.length === 0) {
+    if (!loaded) {
       dispatch(fetchUsers());
     }
-  }, [dispatch, users.length]);
+  }, [dispatch, loaded]);
+
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -35,7 +37,6 @@ export const UserSelector: React.FC<Props> = ({
 
     document.addEventListener('click', handleDocumentClick);
 
-    // eslint-disable-next-line consistent-return
     return () => {
       document.removeEventListener('click', handleDocumentClick);
     };
